@@ -5,6 +5,10 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+function escapeMarkdownV2(text: string): string {
+  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
+}
+
 const BOT_TOKEN = process.env.BOT_TOKEN || '';
 const API_BASE_URL = process.env.API_BASE_URL || 'https://api.videogen.web.id';
 const RESELLER_API_KEY = process.env.RESELLER_API_KEY || '';
@@ -465,7 +469,7 @@ bot.on(message('text'), async (ctx) => {
 
     await ctx.reply(
       `✅ *Anggota berhasil ditambahkan\\!*\n` +
-      `${targetUsername ? '@' + targetUsername : 'ID: ' + targetId} sekarang bisa menggunakan bot\\.`,
+      `${targetUsername ? '@' + escapeMarkdownV2(targetUsername) : 'ID: ' + targetId} sekarang bisa menggunakan bot\\.`,
       { parse_mode: 'MarkdownV2' }
     );
 
@@ -581,7 +585,8 @@ bot.action(/^(video|image)_(.+)/, requireAuth, async (ctx) => {
     category: category as 'video' | 'image',
   });
 
-  let msg = `🤖 *Model:* ${modelInfo?.label || model}\n\n✍️ *Masukkan prompt / deskripsi:*\nTulis apa yang ingin kamu buat...`;
+  const modelLabel = escapeMarkdownV2(modelInfo?.label || model);
+  let msg = `🤖 *Model:* ${modelLabel}\n\n✍️ *Masukkan prompt / deskripsi:*\nTulis apa yang ingin kamu buat\\.\\.\\.`;
   if (modelInfo?.needs_image || modelInfo?.supports_image) {
     msg += '\n\n📸 *Tips:* Model ini bisa pake gambar\\! Nanti setelah prompt, kamu bisa kirim fotonya\\.';
   }
